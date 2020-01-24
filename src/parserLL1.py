@@ -15,7 +15,10 @@ XXX:
       produções-lambda
     - grammar3.txt: Recursividade à esquerda sem produções-lambda
 """
-def first(var, productions):
+def first(var: str, productions: dict) -> list:
+    """
+    Retorna uma lista de FIRST de cada regra
+    """
     firstSet = set()
     i = 0
 
@@ -44,7 +47,7 @@ def first(var, productions):
 
     return list(firstSet)
 
-def follow(followDict, firstDict, productions):
+def follow(followDict: dict, firstDict: dict, productions: dict):
     for var in productions.keys():
         if len(followDict) == 0:
             followDict.update({var : '$'})
@@ -76,7 +79,7 @@ def follow(followDict, firstDict, productions):
         print(f'{var} -> {productions[var]}')
     print(followDict)
 
-def getGrammar():
+def getGrammar() -> dict:
     """
     Criar dicionário com as produções da linguagem
     """
@@ -102,9 +105,9 @@ def getGrammar():
 
     return productions
 
-def removeRecursion(productions):
+def removeRecursion(productions: dict):
     """
-    Remover recursão a esquerda para ser possível criar a tabela
+    Remove recursão a esquerda para possibilitar a criação da tabela
     """
     derivative = "'"
     newProduction = list()
@@ -131,7 +134,10 @@ def removeRecursion(productions):
 
         newProduction.clear()
 
-def removeFactorization(productions):
+def removeFactorization(productions: dict):
+    """
+    Remove fatoração a esquerda das regras
+    """
     derivative = "'"
     newProduction = set()
     newVar = ''
@@ -154,9 +160,9 @@ def removeFactorization(productions):
 
 if __name__ == "__main__":
     trash = ['|', '->', ' ', '', None]
-    grammar = list()
-    firstDict = dict()
-    followDict = dict()
+    grammar = []
+    firstDict = {}
+    followDict = {}
     productions = getGrammar()
     removeRecursion(productions)
     removeFactorization(productions)
