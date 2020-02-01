@@ -4,16 +4,9 @@ import sys
 import os
 
 """
-TODO 1: Criar um parser LL(1)
-    - Desenvolver FIRST
+TODO: Criar um parser LL(1)
     - Desenvolver FOLLOW
     - Gerar tabela LL(1)
-
-XXX:
-    - grammar.txt: Gramática simples para testes rápidos 
-    - grammar2.txt: Gramática maior, sem recursividade à esquerda e com
-      produções-lambda
-    - grammar3.txt: Recursividade à esquerda sem produções-lambda
 """
 def first(var: str, productions: dict) -> list:
     """
@@ -45,7 +38,7 @@ def first(var: str, productions: dict) -> list:
             else:
                 firstSet.add(productions[var][i][0])
 
-    return list(firstSet)
+    return firstSet
 
 def follow(followDict: dict, firstDict: dict, productions: dict):
     for var in productions.keys():
@@ -83,7 +76,7 @@ def getGrammar() -> dict:
     """
     Criar dicionário com as produções da linguagem
     """
-    productions = dict()
+    productions = {}
 
     with open(sys.argv[1]) as file:
         grammar = file.read()
@@ -110,7 +103,7 @@ def removeRecursion(productions: dict):
     Remove recursão a esquerda para possibilitar a criação da tabela
     """
     derivative = "'"
-    newProduction = list()
+    newProduction = []
     newVar = ''
     tempDict = productions.copy()
 
@@ -164,8 +157,11 @@ if __name__ == "__main__":
     firstDict = {}
     followDict = {}
     productions = getGrammar()
+    print(productions)
     removeRecursion(productions)
+    print(productions)
     removeFactorization(productions)
+    print(productions)
 
     for i in productions.keys():
         firstDict.update({i : first(i, productions)})
