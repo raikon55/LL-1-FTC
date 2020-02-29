@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import re
 import string
 import sys
@@ -9,9 +11,6 @@ TODO: Criar um parser LL(1)
     - Gerar tabela LL(1)
 """
 def first(var: str, productions: dict) -> list:
-    """
-    Retorna uma lista de FIRST de cada regra
-    """
     firstSet = set()
     i = 0
 
@@ -40,36 +39,22 @@ def first(var: str, productions: dict) -> list:
 
     return firstSet
 
-def follow(followDict: dict, firstDict: dict, productions: dict):
-    for var in productions.keys():
-        if len(followDict) == 0:
-            followDict.update({var : '$'})
-        
-        for i in range(len(productions[var])):
+def follow(followDict: dict, var: str, productions: dict):
+    nonTerm:str = ''
+    if len(followDict) == 0:
+        followDict.update({var : '$'})
 
-            for j in range(len(productions[var][i])):
+    for i in range(len(productions[var])):
 
-                if productions[var][i][j] in productions.keys():
-                    nonTerm = productions[var][i][j]
+        for j in range(len(productions[var][i])):
 
-                else:
-                    continue
+            if productions[var][i][j] == var:
+                if productions[var][i+1] != '@':
+                    print(productions[var][i+1])
+                if productions[var][i+1] != '@' and productions[var][i][0] != var:
+                    follow(followDict, productions[var][i][0], productions)
 
-                if productions[var][i][j].isupper() and \
-                    not set(firstDict[productions[var][i][j]]).issuperset({'@'}):
-                   followDict.update({nonTerm: firstDict[productions[var][i][j+1]]})
-
-                elif set(firstDict[productions[var][i][j]]).issuperset({'@'}):
-                    try:
-                        temp = firstDict[productions[var]] - {'@'}
-
-                    except:
-                        print("ERROR")
-
-                    followDict.update({nonTerm: temp})
-                    followDict.update({nonTerm: followDict[var]})
-
-        print(f'{var} -> {productions[var]}')
+    print(f'{var} -> {productions[var]}')
     print(followDict)
 
 def getGrammar() -> dict:
@@ -157,13 +142,11 @@ if __name__ == "__main__":
     firstDict = {}
     followDict = {}
     productions = getGrammar()
-    print(productions)
     removeRecursion(productions)
-    print(productions)
     removeFactorization(productions)
-    print(productions)
 
     for i in productions.keys():
         firstDict.update({i : first(i, productions)})
 
-    follow(followDict, firstDict, productions)
+    for var in productions.keys():
+        follow(followDict, var, productions)
