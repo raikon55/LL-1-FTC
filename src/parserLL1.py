@@ -40,19 +40,19 @@ def first(var: str, productions: dict) -> list:
     return firstSet
 
 def follow(followDict: dict, var: str, productions: dict):
-    nonTerm:str = ''
     if len(followDict) == 0:
-        followDict.update({var : '$'})
+        followDict.update({var: '$'})
 
     for i in range(len(productions[var])):
-
-        for j in range(len(productions[var][i])):
-
-            if productions[var][i][j] == var:
-                if productions[var][i+1] != '@':
-                    print(productions[var][i+1])
-                if productions[var][i+1] != '@' and productions[var][i][0] != var:
-                    follow(followDict, productions[var][i][0], productions)
+        if var in productions[var][i]:
+            temp = list(productions[var][i])
+            test = temp.index(var)
+            if test == (len(temp)-1):
+                followDict[var].extend(
+                    followDict[list(productions.keys())[0]])
+            else:
+                followDict[var].extend(
+                    first(var, productions))
 
     print(f'{var} -> {productions[var]}')
     print(followDict)
