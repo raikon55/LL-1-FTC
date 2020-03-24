@@ -43,16 +43,16 @@ def follow(followDict: dict, var: str, productions: dict):
     if len(followDict) == 0:
         followDict.update({var: '$'})
 
-    for i in range(len(productions[var])):
-        if var in productions[var][i]:
-            temp = list(productions[var][i])
-            test = temp.index(var)
-            if test == (len(temp)-1):
-                followDict[var].extend(
-                    followDict[list(productions.keys())[0]])
-            else:
-                followDict[var].extend(
-                    first(var, productions))
+    # for i in range(len(productions[var])):
+    #     if var in productions[var][i]:
+    #         temp = list(productions[var][i])
+    #         test = temp.index(var)
+    #         if test == (len(temp)-1):
+    #             followDict[var].extend(
+    #                 followDict[list(productions.keys())[0]])
+    #         else:
+    #             followDict[var].extend(
+    #                 first(var, productions))
 
     print(f'{var} -> {productions[var]}')
     print(followDict)
@@ -147,6 +147,3 @@ if __name__ == "__main__":
 
     for i in productions.keys():
         firstDict.update({i : first(i, productions)})
-
-    for var in productions.keys():
-        follow(followDict, var, productions)
