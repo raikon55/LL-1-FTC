@@ -83,6 +83,26 @@ def first(var: str, productions: dict) -> list:
 
     return firstSet
 
+<<<<<<< HEAD
+=======
+def follow(followDict: dict, var: str, productions: dict):
+    if len(followDict) == 0:
+        followDict.update({var: '$'})
+
+    # for i in range(len(productions[var])):
+    #     if var in productions[var][i]:
+    #         temp = list(productions[var][i])
+    #         test = temp.index(var)
+    #         if test == (len(temp)-1):
+    #             followDict[var].extend(
+    #                 followDict[list(productions.keys())[0]])
+    #         else:
+    #             followDict[var].extend(
+    #                 first(var, productions))
+
+    print(f'{var} -> {productions[var]}')
+    print(followDict)
+>>>>>>> 8581972e7f16e7cb3b5af906dead16403ce7d902
 
 def getGrammar() -> dict:
     """
@@ -180,6 +200,7 @@ if __name__ == "__main__":
     removeFactorization(productions)
 
     for i in productions.keys():
+<<<<<<< HEAD
         firstDict.update({i: first(i, productions)})
 
     followDict.update({start: '$'})
@@ -187,3 +208,6 @@ if __name__ == "__main__":
         followDict = follow(var, productions, followDict)
 
     print(f"{firstDict}\n{followDict}")
+=======
+        firstDict.update({i : first(i, productions)})
+>>>>>>> 8581972e7f16e7cb3b5af906dead16403ce7d902
