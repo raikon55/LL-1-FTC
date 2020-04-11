@@ -1,15 +1,59 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+import os
 import re
 import string
 import sys
-import os
+
 
 """
 TODO: Criar um parser LL(1)
     - Desenvolver FOLLOW
     - Gerar tabela LL(1)
 """
+
+
+def follow(var: str, productions: dict, followDict: dict):
+    if len(var) != 1:
+        return {}
+
+    for key in productions:
+        for value in productions[key]:
+            found = value.find(var)
+
+            if found != -1:
+                if found == (len(value)-1):
+                    if key != var:
+                        if key in followDict:
+                            temp = followDict[key]
+                        else:
+                            followDict = follow(key, productions, followDict)
+                            temp = followDict[key]
+                        followDict[var] = followDict[var].union(temp)
+
+                else:
+                    first_of_next = first(value[found+1:], productions)
+
+                    if '@' in first_of_next:
+                        if key != var:
+                            if key in followDict:
+                                temp = followDict[key]
+                            else:
+                                followDict = follow(
+                                    key, productions, followDict)
+                                temp = followDict[key]
+                            followDict[var] = followDict[var].union(temp)
+                            followDict[var] = followDict[var].union(
+                                first_of_next) - {'@'}
+                    else:
+                        followDict[var] = followDict[var].union(first_of_next)
+
+    print(f'{var} -> {productions[var]}')
+    print(followDict)
+
+    return followDict
+
+
 def first(var: str, productions: dict) -> list:
     firstSet = set()
     i = 0
@@ -39,29 +83,13 @@ def first(var: str, productions: dict) -> list:
 
     return firstSet
 
-def follow(followDict: dict, var: str, productions: dict):
-    if len(followDict) == 0:
-        followDict.update({var: '$'})
-
-    for i in range(len(productions[var])):
-        if var in productions[var][i]:
-            temp = list(productions[var][i])
-            test = temp.index(var)
-            if test == (len(temp)-1):
-                followDict[var].extend(
-                    followDict[list(productions.keys())[0]])
-            else:
-                followDict[var].extend(
-                    first(var, productions))
-
-    print(f'{var} -> {productions[var]}')
-    print(followDict)
 
 def getGrammar() -> dict:
     """
     Criar dicionário com as produções da linguagem
     """
     productions = {}
+    start = ""
 
     with open(sys.argv[1]) as file:
         grammar = file.read()
@@ -70,6 +98,8 @@ def getGrammar() -> dict:
             line = re.split(r'((->)|(\|)|( ))', lines)
 
             var = line[0]
+            if len(start) == 0:
+                start = var
             line.remove(var)
 
             i = 0
@@ -81,7 +111,8 @@ def getGrammar() -> dict:
 
             productions.update({var: line})
 
-    return productions
+    return (start, productions)
+
 
 def removeRecursion(productions: dict):
     """
@@ -100,17 +131,19 @@ def removeRecursion(productions: dict):
 
             if len(tempDict[var][i]) > 1:
                 if var == tempDict[var][i][0]:
-                    newProduction.append(tempDict[var][i].replace(var, '') + newVar)
+                    newProduction.append(
+                        tempDict[var][i].replace(var, '') + newVar)
                     productions[var].remove(tempDict[var][i])
 
             elif tempDict[var][i].isupper():
                 productions[var].remove(tempDict[var][i])
                 productions[var].append(tempDict[var][i] + newVar)
 
-        if len(newProduction) != 0: 
-            productions.update({newVar : newProduction.copy()})
+        if len(newProduction) != 0:
+            productions.update({newVar: newProduction.copy()})
 
         newProduction.clear()
+
 
 def removeFactorization(productions: dict):
     """
@@ -131,22 +164,26 @@ def removeFactorization(productions: dict):
                     newProduction.add(tempDict[var][i].replace(rule, ''))
                     newProduction.add('@')
 
-    tempDict[var].append(rule + newVar)    
+    tempDict[var].append(rule + newVar)
     tempDict.update({newVar: newProduction})
 
     newProduction.clear()
+
 
 if __name__ == "__main__":
     trash = ['|', '->', ' ', '', None]
     grammar = []
     firstDict = {}
     followDict = {}
-    productions = getGrammar()
+    start, productions = getGrammar()
     removeRecursion(productions)
     removeFactorization(productions)
 
     for i in productions.keys():
-        firstDict.update({i : first(i, productions)})
+        firstDict.update({i: first(i, productions)})
 
+    followDict.update({start: '$'})
     for var in productions.keys():
-        follow(followDict, var, productions)
+        followDict = follow(var, productions, followDict)
+
+    print(f"{firstDict}\n{followDict}")
